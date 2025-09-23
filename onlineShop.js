@@ -16,8 +16,11 @@ class Client {
       } else {
         this._initFromString(data);
       }
-
-    } else if (args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
+    } else if (
+      args.length === 1 &&
+      typeof args[0] === "object" &&
+      args[0] !== null
+    ) {
       this._initFromObject(args[0]);
     } else if (args.length === 5) {
       this._initFromParams(...args);
@@ -35,7 +38,13 @@ class Client {
   }
 
   _initFromObject(obj) {
-    this._initFromParams(obj.clientId, obj.fullName, obj.phone, obj.email, obj.address);
+    this._initFromParams(
+      obj.clientId,
+      obj.fullName,
+      obj.phone,
+      obj.email,
+      obj.address
+    );
   }
 
   _initFromString(str) {
@@ -79,11 +88,40 @@ class Client {
     this._initFromParams(clientId, fullName, phone, email, address);
   }
 
-  get clientId() { return this.#clientId; }
-  get fullName() { return this.#fullName; }
-  get phone()    { return this.#phone; }
-  get email()    { return this.#email; }
-  get address()  { return this.#address; }
+  toStringFull() {
+    return `Client ${this.#clientId}: ${this.#fullName}, Телефон: ${this.#phone}, Email: ${this.#email}, Адрес: ${this.#address}`;
+  }
+
+  toStringShort() {
+    return `Client ${this.#clientId}: ${this.#fullName} (${this.#phone})`;
+  }
+
+  equals(other) {
+    if (!(other instanceof Client)) return false;
+    return (
+      this.#clientId === other.#clientId &&
+      this.#fullName === other.#fullName &&
+      this.#phone === other.#phone &&
+      this.#email === other.#email &&
+      this.#address === other.#address
+    );
+  }
+
+  get clientId() {
+    return this.#clientId;
+  }
+  get fullName() {
+    return this.#fullName;
+  }
+  get phone() {
+    return this.#phone;
+  }
+  get email() {
+    return this.#email;
+  }
+  get address() {
+    return this.#address;
+  }
 
   static validateNonEmptyString(value, fieldName = "Поле") {
     if (typeof value !== "string" || value.trim().length === 0) {
