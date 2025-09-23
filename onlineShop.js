@@ -1,110 +1,18 @@
-class Client {
+class ClientBase {
   #clientId;
   #fullName;
   #phone;
-  #email;
-  #address;
 
-  constructor(...args) {
-    if (args.length === 1 && typeof args[0] === "string") {
-      const data = args[0].trim();
-
-      if (data.startsWith("{") && data.endsWith("}")) {
-        this._initFromJSON(data);
-      } else if (data.startsWith("<") && data.endsWith(">")) {
-        this._initFromXML(data);
-      } else {
-        this._initFromString(data);
-      }
-    } else if (
-      args.length === 1 &&
-      typeof args[0] === "object" &&
-      args[0] !== null
-    ) {
-      this._initFromObject(args[0]);
-    } else if (args.length === 5) {
-      this._initFromParams(...args);
-    } else {
-      throw new Error("Некорректный формат аргументов конструктора Client");
-    }
+  constructor(clientId, fullName, phone) {
+    this.#clientId = ClientBase.validateId(clientId);
+    this.#fullName = ClientBase.validateNonEmptyString(fullName, "ФИО");
+    this.#phone = ClientBase.validatePhone(phone);
   }
 
-  _initFromParams(clientId, fullName, phone, email, address) {
-    this.#clientId = Client.validateId(clientId);
-    this.#fullName = Client.validateNonEmptyString(fullName, "ФИО");
-    this.#phone = Client.validatePhone(phone);
-    this.#email = Client.validateEmail(email);
-    this.#address = Client.validateNonEmptyString(address, "Адрес");
-  }
-
-  _initFromObject(obj) {
-    this._initFromParams(
-      obj.clientId,
-      obj.fullName,
-      obj.phone,
-      obj.email,
-      obj.address
-    );
-  }
-
-  _initFromString(str) {
-    const parts = str.split(";");
-    if (parts.length !== 5) {
-      throw new Error("Строка должна быть вида: id;ФИО;телефон;email;адрес");
-    }
-
-    const [idStr, fullName, phone, email, address] = parts;
-    const id = parseInt(idStr, 10);
-    if (isNaN(id)) {
-      throw new Error("ID должен быть числом");
-    }
-
-    this._initFromParams(id, fullName, phone, email, address);
-  }
-
-  _initFromJSON(jsonString) {
-    let obj;
-    try {
-      obj = JSON.parse(jsonString);
-    } catch {
-      throw new Error("Некорректный JSON");
-    }
-    this._initFromObject(obj);
-  }
-  _initFromXML(xmlString) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlString, "application/xml");
-
-    if (doc.querySelector("parsererror")) {
-      throw new Error("Некорректный XML");
-    }
-
-    const clientId = parseInt(doc.querySelector("clientId")?.textContent, 10);
-    const fullName = doc.querySelector("fullName")?.textContent;
-    const phone = doc.querySelector("phone")?.textContent;
-    const email = doc.querySelector("email")?.textContent;
-    const address = doc.querySelector("address")?.textContent;
-
-    this._initFromParams(clientId, fullName, phone, email, address);
-  }
-
-  toStringFull() {
-    return `Client ${this.#clientId}: ${this.#fullName}, Телефон: ${this.#phone}, Email: ${this.#email}, Адрес: ${this.#address}`;
-  }
-
-  toStringShort() {
-    return `Client ${this.#clientId}: ${this.#fullName} (${this.#phone})`;
-  }
-
-  equals(other) {
-    if (!(other instanceof Client)) return false;
-    return (
-      this.#clientId === other.#clientId &&
-      this.#fullName === other.#fullName &&
-      this.#phone === other.#phone &&
-      this.#email === other.#email &&
-      this.#address === other.#address
-    );
+  _initBase(clientId, fullName, phone) {
+    this.#clientId = ClientBase.validateId(clientId);
+    this.#fullName = ClientBase.validateNonEmptyString(fullName, "ФИО");
+    this.#phone = ClientBase.validatePhone(phone);
   }
 
   get clientId() {
@@ -116,11 +24,13 @@ class Client {
   get phone() {
     return this.#phone;
   }
-  get email() {
-    return this.#email;
+
+  toStringShort() {
+    return `Client ${this.#clientId}: ${this.#fullName} (${this.#phone})`;
   }
-  get address() {
-    return this.#address;
+
+  equals(other) {
+    return other instanceof ClientBase && this.#clientId === other.#clientId;
   }
 
   static validateNonEmptyString(value, fieldName = "Поле") {
@@ -144,6 +54,101 @@ class Client {
     }
     return phone;
   }
+}
+
+class ClientShort extends ClientBase {
+  constructor(clientId, fullName, phone) {
+    super(clientId, fullName, phone);
+  }
+
+  toString() {
+    return `ClientShort ${this.clientId}: ${this.fullName} (${this.phone})`;
+  }
+}
+
+class Client extends ClientBase {
+  #email;
+  #address;
+
+  constructor(...args) {
+    super(0, "", "");
+
+    if (args.length === 1 && typeof args[0] === "string") {
+      const data = args[0].trim();
+      if (data.startsWith("{") && data.endsWith("}")) {
+        this._initFromJSON(data);
+      } else if (data.startsWith("<") && data.endsWith(">")) {
+        this._initFromXML(data);
+      } else {
+        this._initFromString(data);
+      }
+    } else if (
+      args.length === 1 &&
+      typeof args[0] === "object" &&
+      args[0] !== null
+    ) {
+      this._initFromObject(args[0]);
+    } else if (args.length === 5) {
+      const [clientId, fullName, phone, email, address] = args;
+      this._initFromParams(clientId, fullName, phone, email, address);
+    } else {
+      throw new Error("Некорректный формат аргументов конструктора Client");
+    }
+  }
+
+  _initFromParams(clientId, fullName, phone, email, address) {
+    this._initBase(clientId, fullName, phone);
+    this.#email = Client.validateEmail(email);
+    this.#address = Client.validateNonEmptyString(address, "Адрес");
+  }
+
+  _initFromObject(obj) {
+    this._initFromParams(
+      obj.clientId,
+      obj.fullName,
+      obj.phone,
+      obj.email,
+      obj.address
+    );
+  }
+
+  _initFromString(str) {
+    const parts = str.split(";");
+    if (parts.length !== 5) {
+      throw new Error("Строка должна быть вида: id;ФИО;телефон;email;адрес");
+    }
+    const [idStr, fullName, phone, email, address] = parts;
+    this._initFromParams(parseInt(idStr, 10), fullName, phone, email, address);
+  }
+
+  _initFromJSON(jsonString) {
+    const obj = JSON.parse(jsonString);
+    this._initFromObject(obj);
+  }
+
+  _initFromXML(xmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlString, "application/xml");
+    const clientId = parseInt(doc.querySelector("clientId")?.textContent, 10);
+    const fullName = doc.querySelector("fullName")?.textContent;
+    const phone = doc.querySelector("phone")?.textContent;
+    const email = doc.querySelector("email")?.textContent;
+    const address = doc.querySelector("address")?.textContent;
+    this._initFromParams(clientId, fullName, phone, email, address);
+  }
+
+  get email() {
+    return this.#email;
+  }
+  get address() {
+    return this.#address;
+  }
+
+  toStringFull() {
+    return `Client ${this.clientId}: ${this.fullName}, Телефон: ${
+      this.phone
+    }, Email: ${this.#email}, Адрес: ${this.#address}`;
+  }
 
   static validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -151,22 +156,5 @@ class Client {
       throw new Error("Некорректный email");
     }
     return email;
-  }
-}
-
-
-class ClientShort {
-  #clientId;
-  #fullName;
-  #phone;
-
-  constructor(client) {
-    if (!(client instanceof Client)) {
-      throw new Error("ClientShort может быть создан только на основе Client");
-    }
-
-    this.#clientId = client.clientId;
-    this.#fullName = client.fullName;
-    this.#phone = client.phone;
   }
 }
