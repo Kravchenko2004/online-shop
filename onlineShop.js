@@ -153,3 +153,20 @@ class Client {
     return email;
   }
 }
+
+
+class ClientShort {
+  #clientId;
+  #fullName;
+  #phone;
+
+  constructor(client) {
+    if (!(client instanceof Client)) {
+      throw new Error("ClientShort может быть создан только на основе Client");
+    }
+
+    this.#clientId = client.clientId;
+    this.#fullName = client.fullName;
+    this.#phone = client.phone;
+  }
+}
