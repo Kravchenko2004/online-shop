@@ -7,10 +7,10 @@ class Client {
 
   constructor(clientId, fullName, phone, email, address) {
     this.#clientId = Client.validateId(clientId);
-    this.#fullName = Client.validateFullName(fullName);
+    this.#fullName = Client.validateNonEmptyString(fullName, "ФИО");
     this.#phone = Client.validatePhone(phone);
     this.#email = Client.validateEmail(email);
-    this.#address = Client.validateAddress(address);
+    this.#address = Client.validateNonEmptyString(address, "Адрес");
   }
 
   get clientId() {
@@ -33,7 +33,7 @@ class Client {
     this.#clientId = Client.validateId(value);
   }
   set fullName(value) {
-    this.#fullName = Client.validateFullName(value);
+    this.#fullName = Client.validateNonEmptyString(value, "ФИО");
   }
   set phone(value) {
     this.#phone = Client.validatePhone(value);
@@ -42,7 +42,14 @@ class Client {
     this.#email = Client.validateEmail(value);
   }
   set address(value) {
-    this.#address = Client.validateAddress(value);
+    this.#address = Client.validateNonEmptyString(value, "Адрес");
+  }
+
+  static validateNonEmptyString(value, fieldName = "Поле") {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error(`${fieldName} должно быть непустой строкой`);
+    }
+    return value.trim();
   }
 
   static validateId(id) {
@@ -50,13 +57,6 @@ class Client {
       throw new Error("ID должен быть положительным целым числом");
     }
     return id;
-  }
-
-  static validateFullName(name) {
-    if (typeof name !== "string" || name.trim().length < 3) {
-      throw new Error("ФИО должно быть строкой длиной минимум 3 символа");
-    }
-    return name.trim();
   }
 
   static validatePhone(phone) {
@@ -73,12 +73,5 @@ class Client {
       throw new Error("Некорректный email");
     }
     return email;
-  }
-
-  static validateAddress(address) {
-    if (typeof address !== "string" || address.trim().length < 5) {
-      throw new Error("Адрес должен содержать минимум 5 символов");
-    }
-    return address.trim();
   }
 }
