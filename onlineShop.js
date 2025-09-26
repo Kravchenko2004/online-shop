@@ -71,7 +71,7 @@ class Client extends ClientBase {
   #address;
 
   constructor(...args) {
-    super(0, "", "");
+    super(1, "temp", "+70000000000");
 
     if (args.length === 1 && typeof args[0] === "string") {
       const data = args[0].trim();
