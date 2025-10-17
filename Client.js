@@ -5,13 +5,13 @@ class ClientBase {
 
   constructor(clientId, fullName, phone) {
     this.#clientId = ClientBase.validateId(clientId);
-    this.#fullName = ClientBase.validateNonEmptyString(fullName, "ФИО");
+    this.#fullName = ClientBase.validateFullName(fullName);
     this.#phone = ClientBase.validatePhone(phone);
   }
 
   _initBase(clientId, fullName, phone) {
     this.#clientId = ClientBase.validateId(clientId);
-    this.#fullName = ClientBase.validateNonEmptyString(fullName, "ФИО");
+    this.#fullName = ClientBase.validateFullName(fullName);
     this.#phone = ClientBase.validatePhone(phone);
   }
 
@@ -53,6 +53,15 @@ class ClientBase {
       throw new Error("Телефон должен содержать от 7 до 15 цифр");
     }
     return phone;
+  }
+
+  static validateFullName(fullName) {
+    const value = this.validateNonEmptyString(fullName, "ФИО");
+    const regex = /^[A-Za-zА-Яа-яЁё\s-]+$/;
+    if (!regex.test(value)) {
+      throw new Error("ФИО может содержать только буквы, пробелы и дефисы");
+    }
+    return value.trim();
   }
 }
 
@@ -144,17 +153,24 @@ class Client extends ClientBase {
     return this.#address;
   }
 
+static validateEmail(email) {
+  if (typeof email !== "string") {
+    throw new Error("Email должен быть строкой");
+  }
+  const emailRegex = /^[A-Za-z0-9](\.?[A-Za-z0-9_-])*@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error("Некорректный email");
+  }
+  return email.trim();
+}
+
+
   toStringFull() {
     return `Client ${this.clientId}: ${this.fullName}, Телефон: ${
       this.phone
     }, Email: ${this.#email}, Адрес: ${this.#address}`;
   }
 
-  static validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error("Некорректный email");
-    }
-    return email;
-  }
 }
+
+export { ClientBase, ClientShort, Client };

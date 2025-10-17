@@ -1,0 +1,16 @@
+[
+  {
+    "clientId": 1,
+    "fullName": "Иванов Иван Обновленный",
+    "phone": "+70001112233",
+    "email": "ivanov_new@mail.ru",
+    "address": "Москва, центр"
+  },
+  {
+    "clientId": 3,
+    "fullName": "Сидоров Сидор Сидорович",
+    "phone": "+79998887766",
+    "email": "sidorov@mail.ru",
+    "address": "Краснодар"
+  }
+]
