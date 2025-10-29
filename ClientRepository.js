@@ -1,7 +1,7 @@
 import fs from "fs";
 import yaml from "js-yaml";
 import { Client, ClientShort } from "./Client.js";
-import { DatabaseConnection } from "./DatabaseConnection.js";
+import { Client as PgClient } from "pg"; 
 
 class ClientRepositoryBase {
   #filePath;
@@ -150,6 +150,59 @@ export class Client_rep_yaml extends ClientRepositoryBase {
   }
 }
 
+ class DatabaseConnection {
+  static #instance = null;
+  #client = null;
+  #connected = false;
+
+  constructor(config) {
+    if (DatabaseConnection.#instance) {
+      return DatabaseConnection.#instance;
+    }
+
+    this.config = config || {
+      host: "localhost",
+      user: "viktoria",
+      password: "",
+      database: "postgres",
+      port: 5432,
+    };
+
+    this.#client = new PgClient(this.config);
+    DatabaseConnection.#instance = this;
+  }
+
+  async connect() {
+    if (!this.#connected) {
+      await this.#client.connect();
+      this.#connected = true;
+      console.log("Подключено к PostgreSQL");
+    }
+  }
+
+  async query(sql, params = []) {
+    if (!this.#connected) {
+      throw new Error("Нет подключения к базе данных. Сначала вызовите connect().");
+    }
+    return this.#client.query(sql, params);
+  }
+
+  async close() {
+    if (this.#connected) {
+      await this.#client.end();
+      this.#connected = false;
+      console.log("Соединение закрыто");
+    }
+  }
+
+  static getInstance(config) {
+    if (!DatabaseConnection.#instance) {
+      DatabaseConnection.#instance = new DatabaseConnection(config);
+    }
+    return DatabaseConnection.#instance;
+  }
+}
+
 export class Client_rep_DB {
   #db;
   constructor(config) {
@@ -242,5 +295,46 @@ export class Client_rep_DB {
   async get_count() {
     const res = await this.#db.query("SELECT COUNT(*) FROM clients");
     return parseInt(res.rows[0].count, 10);
+  }
+}
+
+export class Client_rep_DB_adapter extends ClientRepositoryBase {
+  #dbRepo;
+
+  constructor(config) {
+    super(null);
+    this.#dbRepo = new Client_rep_DB(config);
+  }
+
+  async connect() {
+    await this.#dbRepo.connect();
+  }
+
+  async close() {
+    await this.#dbRepo.close();
+  }
+
+  async getById(id) {
+    return await this.#dbRepo.getById(id);
+  }
+
+  async get_k_n_short_list(k, n) {
+    return await this.#dbRepo.get_k_n_short_list(k, n);
+  }
+
+  async add(clientObj) {
+    return await this.#dbRepo.add(clientObj);
+  }
+
+  async replaceById(id, newData) {
+    return await this.#dbRepo.replaceById(id, newData);
+  }
+
+  async deleteById(id) {
+    return await this.#dbRepo.deleteById(id);
+  }
+
+  async get_count() {
+    return await this.#dbRepo.get_count();
   }
 }
