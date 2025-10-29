@@ -30,8 +30,8 @@ console.log("Итого:", yamlRepo.get_count());
 
 const dbRepo = new Client_rep_DB({
   host: "localhost",
-  user: "viktoria",  
-  password: "",   
+  user: "viktoria",
+  password: "",
   database: "postgres",
   port: 5432,
 });
@@ -40,7 +40,6 @@ const dbRepo = new Client_rep_DB({
   await dbRepo.connect();
 
   console.log("Всего клиентов:", await dbRepo.get_count());
-  
 
   const newClient = await dbRepo.add({
     fullName: "Иванов Виктор Викторович",
