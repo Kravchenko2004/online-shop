@@ -1,9 +1,10 @@
-import { Client_rep_json, Client_rep_yaml } from "./ClientRepository.js";
-import { Client_rep_DB } from "./db/ClientRepositoryDB.js";
+import { Client_rep_json, Client_rep_yaml, FileRepositoryDecorator } from "./ClientRepository.js";
 import { Client_rep_DB_adapter, Client_rep_DB_decorator } from "./db/DBEnhancers.js";
 
-console.log("\n=== JSON TEST ===");
 const jsonRepo = new Client_rep_json("./Clients.json");
+const yamlRepo = new Client_rep_yaml("./clients.yaml");
+
+console.log("=== JSON TEST ===");
 console.log("Всего клиентов:", jsonRepo.get_count());
 jsonRepo.add({
   fullName: "Сидоров Сидор Сидорович",
@@ -16,7 +17,6 @@ console.log("Первые 2 клиента:", jsonRepo.get_k_n_short_list(2, 1))
 console.log("Итого:", jsonRepo.get_count());
 
 console.log("\n=== YAML TEST ===");
-const yamlRepo = new Client_rep_yaml("./clients.yaml");
 console.log("Всего клиентов:", yamlRepo.get_count());
 yamlRepo.add({
   fullName: "Иванова Мария Петровна",
@@ -28,8 +28,13 @@ yamlRepo.sortByField("fullName");
 console.log("Первые 2 клиента:", yamlRepo.get_k_n_short_list(2, 1));
 console.log("Итого:", yamlRepo.get_count());
 
-console.log("\n=== DATABASE TEST ===");
-const dbRepo = new Client_rep_DB({
+const jsonFilter = { field: "fullName", value: "Сидоров" };
+const jsonSort = { field: "fullName", direction: "ASC" };
+const jsonDecorator = new FileRepositoryDecorator(jsonRepo, jsonFilter, jsonSort);
+console.log("\nФильтрованный get_count (JSON):", jsonDecorator.get_count());
+console.log("Фильтрованный get_k_n_short_list (JSON):", jsonDecorator.get_k_n_short_list(2, 1));
+
+const dbRepo = new Client_rep_DB_adapter({
   host: "localhost",
   user: "viktoria",
   password: "",
@@ -37,9 +42,14 @@ const dbRepo = new Client_rep_DB({
   port: 5432,
 });
 
+const dbFilter = { field: "full_name", value: "Иванов" };
+const dbSort = { field: "client_id", direction: "DESC" };
+const dbDecorator = new Client_rep_DB_decorator(dbRepo, dbFilter, dbSort);
+
 (async () => {
   await dbRepo.connect();
 
+  console.log("\n=== DATABASE TEST ===");
   console.log("Всего клиентов:", await dbRepo.get_count());
 
   const newClient = await dbRepo.add({
@@ -50,39 +60,9 @@ const dbRepo = new Client_rep_DB({
   });
   console.log("Добавлен клиент:", newClient);
 
-  console.log("Поиск по ID:", await dbRepo.getById(newClient.clientId));
-
-  await dbRepo.replaceById(newClient.clientId, {
-    fullName: "Петров Иван Сергеевич",
-    phone: "+79995556677",
-    email: `updated_${Date.now()}@mail.ru`,
-    address: "Санкт-Петербург",
-  });
-  console.log("После обновления:", await dbRepo.getById(newClient.clientId));
-
-  console.log("Постраничный список:", await dbRepo.get_k_n_short_list(3, 1));
-
-  // Adapter
-  const dbAdapter = new Client_rep_DB_adapter({
-    host: "localhost",
-    user: "viktoria",
-    password: "",
-    database: "postgres",
-    port: 5432,
-  });
-  await dbAdapter.connect();
-  console.log("\n[Adapter] Кол-во клиентов:", await dbAdapter.get_count());
-
-  // Decorator (с фильтром и сортировкой)
-  const decorator = new Client_rep_DB_decorator(dbAdapter, 
-    { field: "full_name", value: "Иван" },
-    { field: "client_id", direction: "DESC" }
-  );
-
-  console.log("[Decorator] Отфильтровано:", await decorator.get_count());
-  console.log("[Decorator] Пагинация:", await decorator.get_k_n_short_list(2, 1));
+  console.log("Фильтрованный get_count (DB):", await dbDecorator.get_count());
+  console.log("Фильтрованный get_k_n_short_list (DB):", await dbDecorator.get_k_n_short_list(3, 1));
 
   await dbRepo.deleteById(newClient.clientId);
-  console.log("После удаления:", await dbRepo.get_count());
   await dbRepo.close();
 })();
