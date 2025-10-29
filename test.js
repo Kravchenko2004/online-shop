@@ -1,39 +1,28 @@
-import { Client_rep_json } from "./Client_rep_json.js";
+import { Client_rep_json, Client_rep_yaml } from "./ClientRepository.js";
 
-const repo = new Client_rep_json("./clients.json");
+const jsonRepo = new Client_rep_json("./clients.json");
 
-console.log("Количество клиентов:", repo.get_count());
-
-console.log("Добавляем нового клиента...");
-repo.add({
+console.log("Всего клиентов:", jsonRepo.get_count());
+jsonRepo.add({
   fullName: "Сидоров Сидор Сидорович",
   phone: "+79998887766",
   email: "sidorov@mail.ru",
   address: "Краснодар",
 });
+jsonRepo.sortByField("fullName");
+console.log("Первые 2 клиента:", jsonRepo.get_k_n_short_list(2, 1));
+console.log("Итого:", jsonRepo.get_count());
 
-console.log("Клиент с ID=2:");
-console.log(repo.getById(2)?.toStringFull());
 
-console.log("Первые 2 клиента (страница 1):");
-console.log(repo.get_k_n_short_list(2, 1));
+const yamlRepo = new Client_rep_yaml("./clients.yaml");
 
-console.log("Сортировка по имени:");
-repo.sortByField("fullName");
-console.log(repo.get_k_n_short_list(3, 1));
-
-console.log("Замена клиента ID=1:");
-repo.replaceById(1, {
-  fullName: "Иванов Иван Обновленный",
-  phone: "+70001112233",
-  email: "ivanov_new@mail.ru",
-  address: "Москва, центр",
+console.log("Всего клиентов:", yamlRepo.get_count());
+yamlRepo.add({
+  fullName: "Иванова Мария Петровна",
+  phone: "+79005554433",
+  email: "ivanova@mail.ru",
+  address: "Москва",
 });
-
-console.log("Удаление клиента ID=2:");
-repo.deleteById(2);
-
-console.log("Итоговый список:");
-console.log(repo.get_k_n_short_list(10, 1));
-
-console.log("Всего клиентов:", repo.get_count());
+yamlRepo.sortByField("fullName");
+console.log("Первые 2 клиента:", yamlRepo.get_k_n_short_list(2, 1));
+console.log("Итого:", yamlRepo.get_count());

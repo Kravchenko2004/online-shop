@@ -1,0 +1,10 @@
+- clientId: 1
+  fullName: Иванова Мария Петровна
+  phone: '+79005554433'
+  email: ivanova@mail.ru
+  address: Москва
+- clientId: 2
+  fullName: Иванова Мария Петровна
+  phone: '+79005554433'
+  email: ivanova@mail.ru
+  address: Москва

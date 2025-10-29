@@ -7,6 +7,13 @@
     "address": "Москва, центр"
   },
   {
+    "clientId": 2,
+    "fullName": "Сидоров Сидор Сидорович",
+    "phone": "+79998887766",
+    "email": "sidorov@mail.ru",
+    "address": "Краснодар"
+  },
+  {
     "clientId": 3,
     "fullName": "Сидоров Сидор Сидорович",
     "phone": "+79998887766",
