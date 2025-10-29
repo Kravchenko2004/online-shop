@@ -9,7 +9,13 @@ export class ClientRepositoryDecorator {
     this.#sort = sort;
   }
 
-  get repo() { return this.#repo; }
-  get filter() { return this.#filter; }
-  get sort() { return this.#sort; }
+  get repo() {
+    return this.#repo;
+  }
+  get filter() {
+    return this.#filter;
+  }
+  get sort() {
+    return this.#sort;
+  }
 }

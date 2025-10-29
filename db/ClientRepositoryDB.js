@@ -10,8 +10,12 @@ export class Client_rep_DB extends ClientRepositoryBase {
     this.#db = DatabaseConnection.getInstance(config);
   }
 
-  async connect() { await this.#db.connect(); }
-  async close() { await this.#db.close(); }
+  async connect() {
+    await this.#db.connect();
+  }
+  async close() {
+    await this.#db.close();
+  }
 
   async getById(id) {
     const res = await this.#db.query(
@@ -35,9 +39,7 @@ export class Client_rep_DB extends ClientRepositoryBase {
       "SELECT client_id, full_name, phone FROM clients ORDER BY client_id LIMIT $1 OFFSET $2",
       [k, offset]
     );
-    return res.rows.map(
-      (row) => new ClientShort(row.client_id, row.full_name, row.phone)
-    );
+    return res.rows.map((row) => new ClientShort(row.client_id, row.full_name, row.phone));
   }
 
   async add(clientObj) {

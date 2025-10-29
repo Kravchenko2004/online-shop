@@ -4,7 +4,6 @@ export class DatabaseConnection {
   static #instance = null;
   #client = null;
   #connected = false;
-  
 
   constructor(config) {
     if (DatabaseConnection.#instance) {

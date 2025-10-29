@@ -1,7 +1,7 @@
 import { ClientRepositoryBase } from "../ClientRepository.js";
 import { Client_rep_DB } from "../db/ClientRepositoryDB.js";
 import { ClientShort } from "../Client.js";
-import {ClientRepositoryDecorator} from "../decorators/ClientRepositoryDecorator.js"
+import { ClientRepositoryDecorator } from "../decorators/ClientRepositoryDecorator.js";
 
 export class Client_rep_DB_adapter extends ClientRepositoryBase {
   #dbRepo;
@@ -10,21 +10,36 @@ export class Client_rep_DB_adapter extends ClientRepositoryBase {
     this.#dbRepo = new Client_rep_DB(config);
   }
 
-  async connect() { await this.#dbRepo.connect(); }
-  async close() { await this.#dbRepo.close(); }
+  async connect() {
+    await this.#dbRepo.connect();
+  }
+  async close() {
+    await this.#dbRepo.close();
+  }
 
-  async getById(id) { return await this.#dbRepo.getById(id); }
-  async get_k_n_short_list(k, n) { return await this.#dbRepo.get_k_n_short_list(k, n); }
-  async add(clientObj) { return await this.#dbRepo.add(clientObj); }
-  async replaceById(id, data) { return await this.#dbRepo.replaceById(id, data); }
-  async deleteById(id) { return await this.#dbRepo.deleteById(id); }
-  async get_count() { return await this.#dbRepo.get_count(); }
+  async getById(id) {
+    return await this.#dbRepo.getById(id);
+  }
+  async get_k_n_short_list(k, n) {
+    return await this.#dbRepo.get_k_n_short_list(k, n);
+  }
+  async add(clientObj) {
+    return await this.#dbRepo.add(clientObj);
+  }
+  async replaceById(id, data) {
+    return await this.#dbRepo.replaceById(id, data);
+  }
+  async deleteById(id) {
+    return await this.#dbRepo.deleteById(id);
+  }
+  async get_count() {
+    return await this.#dbRepo.get_count();
+  }
 
   async query(sql, params = []) {
     return await this.#dbRepo.query(sql, params);
   }
 }
-
 
 export class Client_rep_DB_decorator extends ClientRepositoryDecorator {
   async get_k_n_short_list(k, n) {
@@ -42,9 +57,7 @@ export class Client_rep_DB_decorator extends ClientRepositoryDecorator {
     params.push(k, offset);
 
     const res = await this.repo.query(query, params);
-    return res.rows.map(
-      (row) => new ClientShort(row.client_id, row.full_name, row.phone)
-    );
+    return res.rows.map((row) => new ClientShort(row.client_id, row.full_name, row.phone));
   }
 
   async get_count() {

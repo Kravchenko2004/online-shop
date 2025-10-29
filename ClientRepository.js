@@ -1,7 +1,7 @@
 import fs from "fs";
 import yaml from "js-yaml";
-import {ClientRepositoryDecorator } from "./decorators/ClientRepositoryDecorator.js"
-import { Client, ClientShort } from "./Client.js"; 
+import { ClientRepositoryDecorator } from "./decorators/ClientRepositoryDecorator.js";
+import { Client, ClientShort } from "./Client.js";
 
 export class ClientRepositoryBase {
   #filePath;
@@ -12,11 +12,9 @@ export class ClientRepositoryBase {
     this.load();
   }
 
-  load() {
-  }
+  load() {}
 
-  save() {
-  }
+  save() {}
 
   getById(id) {
     return this.#clients.find((c) => c.clientId === id) || null;
@@ -45,9 +43,7 @@ export class ClientRepositoryBase {
   }
 
   add(clientObj) {
-    const maxId = this.#clients.length
-      ? Math.max(...this.#clients.map((c) => c.clientId))
-      : 0;
+    const maxId = this.#clients.length ? Math.max(...this.#clients.map((c) => c.clientId)) : 0;
 
     const newClient = new Client({
       clientId: maxId + 1,
@@ -157,9 +153,7 @@ export class FileRepositoryDecorator extends ClientRepositoryDecorator {
     if (this.filter?.field && this.filter?.value) {
       const field = this.filter.field;
       const val = this.filter.value.toLowerCase();
-      clients = clients.filter((c) =>
-        String(c[field]).toLowerCase().includes(val)
-      );
+      clients = clients.filter((c) => String(c[field]).toLowerCase().includes(val));
     }
 
     if (this.sort?.field) {
@@ -168,9 +162,7 @@ export class FileRepositoryDecorator extends ClientRepositoryDecorator {
         const valA = a[field];
         const valB = b[field];
         if (typeof valA === "string")
-          return direction === "ASC"
-            ? valA.localeCompare(valB)
-            : valB.localeCompare(valA);
+          return direction === "ASC" ? valA.localeCompare(valB) : valB.localeCompare(valA);
         return direction === "ASC" ? valA - valB : valB - valA;
       });
     }
@@ -178,7 +170,7 @@ export class FileRepositoryDecorator extends ClientRepositoryDecorator {
     const start = (n - 1) * k;
     const end = start + k;
     const slice = clients.slice(start, end);
-    return slice.map(c => new ClientShort(c.clientId, c.fullName, c.phone));
+    return slice.map((c) => new ClientShort(c.clientId, c.fullName, c.phone));
   }
 
   get_count() {
@@ -186,9 +178,7 @@ export class FileRepositoryDecorator extends ClientRepositoryDecorator {
     if (this.filter?.field && this.filter?.value) {
       const field = this.filter.field;
       const val = this.filter.value.toLowerCase();
-      clients = clients.filter((c) =>
-        String(c[field]).toLowerCase().includes(val)
-      );
+      clients = clients.filter((c) => String(c[field]).toLowerCase().includes(val));
     }
     return clients.length;
   }

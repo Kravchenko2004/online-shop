@@ -91,11 +91,7 @@ class Client extends ClientBase {
       } else {
         this._initFromString(data);
       }
-    } else if (
-      args.length === 1 &&
-      typeof args[0] === "object" &&
-      args[0] !== null
-    ) {
+    } else if (args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
       this._initFromObject(args[0]);
     } else if (args.length === 5) {
       const [clientId, fullName, phone, email, address] = args;
@@ -112,13 +108,7 @@ class Client extends ClientBase {
   }
 
   _initFromObject(obj) {
-    this._initFromParams(
-      obj.clientId,
-      obj.fullName,
-      obj.phone,
-      obj.email,
-      obj.address
-    );
+    this._initFromParams(obj.clientId, obj.fullName, obj.phone, obj.email, obj.address);
   }
 
   _initFromString(str) {
@@ -153,24 +143,22 @@ class Client extends ClientBase {
     return this.#address;
   }
 
-static validateEmail(email) {
-  if (typeof email !== "string") {
-    throw new Error("Email должен быть строкой");
+  static validateEmail(email) {
+    if (typeof email !== "string") {
+      throw new Error("Email должен быть строкой");
+    }
+    const emailRegex = /^[A-Za-z0-9](\.?[A-Za-z0-9_-])*@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error("Некорректный email");
+    }
+    return email.trim();
   }
-  const emailRegex = /^[A-Za-z0-9](\.?[A-Za-z0-9_-])*@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
-  if (!emailRegex.test(email)) {
-    throw new Error("Некорректный email");
-  }
-  return email.trim();
-}
-
 
   toStringFull() {
     return `Client ${this.clientId}: ${this.fullName}, Телефон: ${
       this.phone
     }, Email: ${this.#email}, Адрес: ${this.#address}`;
   }
-
 }
 
 export { ClientBase, ClientShort, Client };
