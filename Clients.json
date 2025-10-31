@@ -82,5 +82,12 @@
     "phone": "+79998887766",
     "email": "sidorov@mail.ru",
     "address": "Краснодар"
+  },
+  {
+    "clientId": 13,
+    "fullName": "Сидоров Сидор Сидорович",
+    "phone": "+79998887766",
+    "email": "sidorov@mail.ru",
+    "address": "Краснодар"
   }
 ]

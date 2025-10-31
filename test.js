@@ -73,6 +73,6 @@ const dbDecorator = new Client_rep_DB_decorator(dbRepo, dbFilter, dbSort);
     { field: "client_id", direction: "ASC" }
   ));
 
-  // await dbRepo.deleteById(newClient.clientId);
+  // await dbRepo.deleteById(7);
   await dbRepo.close();
 })();
