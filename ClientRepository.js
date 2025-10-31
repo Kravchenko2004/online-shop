@@ -147,38 +147,49 @@ export class Client_rep_yaml extends ClientRepositoryBase {
 }
 
 export class FileRepositoryDecorator extends ClientRepositoryDecorator {
-  get_k_n_short_list(k, n) {
+  get_k_n_short_list(k, n, filter = this.filter, sort = this.sort) {
     let clients = [...this.repo.clients];
 
-    if (this.filter?.field && this.filter?.value) {
-      const field = this.filter.field;
-      const val = this.filter.value.toLowerCase();
-      clients = clients.filter((c) => String(c[field]).toLowerCase().includes(val));
+    if (filter?.field && filter?.value) {
+      const field = filter.field;
+      const val = filter.value.toLowerCase();
+      clients = clients.filter((c) =>
+        String(c[field]).toLowerCase().includes(val)
+      );
     }
 
-    if (this.sort?.field) {
-      const { field, direction = "ASC" } = this.sort;
+    if (sort?.field) {
+      const { field, direction = "ASC" } = sort;
       clients.sort((a, b) => {
         const valA = a[field];
         const valB = b[field];
-        if (typeof valA === "string")
-          return direction === "ASC" ? valA.localeCompare(valB) : valB.localeCompare(valA);
-        return direction === "ASC" ? valA - valB : valB - valA;
+        if (typeof valA === "string") {
+          return direction.toUpperCase() === "ASC"
+            ? valA.localeCompare(valB)
+            : valB.localeCompare(valA);
+        }
+        return direction.toUpperCase() === "ASC"
+          ? valA - valB
+          : valB - valA;
       });
     }
 
     const start = (n - 1) * k;
     const end = start + k;
     const slice = clients.slice(start, end);
-    return slice.map((c) => new ClientShort(c.clientId, c.fullName, c.phone));
+    return slice.map(
+      (c) => new ClientShort(c.clientId, c.fullName, c.phone)
+    );
   }
 
-  get_count() {
+  get_count(filter = this.filter) {
     let clients = [...this.repo.clients];
-    if (this.filter?.field && this.filter?.value) {
-      const field = this.filter.field;
-      const val = this.filter.value.toLowerCase();
-      clients = clients.filter((c) => String(c[field]).toLowerCase().includes(val));
+    if (filter?.field && filter?.value) {
+      const field = filter.field;
+      const val = filter.value.toLowerCase();
+      clients = clients.filter((c) =>
+        String(c[field]).toLowerCase().includes(val)
+      );
     }
     return clients.length;
   }

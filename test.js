@@ -13,6 +13,13 @@ jsonRepo.add({
   address: "Краснодар",
 });
 jsonRepo.sortByField("fullName");
+console.log(jsonRepo.get_k_n_short_list(
+    3, 1,
+    { field: "address", value: "Москва" },
+    { field: "fullName", direction: "DESC" }
+  )
+)
+
 console.log("Первые 2 клиента:", jsonRepo.get_k_n_short_list(2, 1));
 console.log("Итого:", jsonRepo.get_count());
 
@@ -53,16 +60,19 @@ const dbDecorator = new Client_rep_DB_decorator(dbRepo, dbFilter, dbSort);
   console.log("Всего клиентов:", await dbRepo.get_count());
 
   const newClient = await dbRepo.add({
-    fullName: "Иванов Виктор Викторович",
-    phone: "+79995556677",
+    fullName: "Иванчук Виктор Викторович",
+    phone: "+79990556677",
     email: `updated_${Date.now()}@mail.ru`,
-    address: "Казань",
+    address: "Москва",
   });
   console.log("Добавлен клиент:", newClient);
 
   console.log("Фильтрованный get_count (DB):", await dbDecorator.get_count());
-  console.log("Фильтрованный get_k_n_short_list (DB):", await dbDecorator.get_k_n_short_list(3, 1));
+  console.log("Фильтрованный get_k_n_short_list (DB):", await dbDecorator.get_k_n_short_list(3,1,
+    { field: "address", value: "Москва" }, 
+    { field: "client_id", direction: "ASC" }
+  ));
 
-  await dbRepo.deleteById(newClient.clientId);
+  // await dbRepo.deleteById(newClient.clientId);
   await dbRepo.close();
 })();

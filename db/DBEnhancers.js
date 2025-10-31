@@ -42,31 +42,33 @@ export class Client_rep_DB_adapter extends ClientRepositoryBase {
 }
 
 export class Client_rep_DB_decorator extends ClientRepositoryDecorator {
-  async get_k_n_short_list(k, n) {
+  async get_k_n_short_list(k, n, filter = this.filter, sort = this.sort) {
     const offset = (n - 1) * k;
     let query = `SELECT client_id, full_name, phone FROM clients`;
     const params = [];
 
-    if (this.filter?.field && this.filter?.value) {
-      query += ` WHERE ${this.filter.field} ILIKE $1`;
-      params.push(`%${this.filter.value}%`);
+    if (filter?.field && filter?.value) {
+      query += ` WHERE ${filter.field} ILIKE $1`;
+      params.push(`%${filter.value}%`);
     }
 
-    query += ` ORDER BY ${this.sort?.field || "client_id"} ${this.sort?.direction || "ASC"}`;
+    query += ` ORDER BY ${sort?.field || "client_id"} ${sort?.direction || "ASC"}`;
     query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(k, offset);
 
     const res = await this.repo.query(query, params);
-    return res.rows.map((row) => new ClientShort(row.client_id, row.full_name, row.phone));
+    return res.rows.map(
+      (row) => new ClientShort(row.client_id, row.full_name, row.phone)
+    );
   }
 
-  async get_count() {
+  async get_count(filter = this.filter) {
     let query = `SELECT COUNT(*) FROM clients`;
     const params = [];
 
-    if (this.filter?.field && this.filter?.value) {
-      query += ` WHERE ${this.filter.field} ILIKE $1`;
-      params.push(`%${this.filter.value}%`);
+    if (filter?.field && filter?.value) {
+      query += ` WHERE ${filter.field} ILIKE $1`;
+      params.push(`%${filter.value}%`);
     }
 
     const res = await this.repo.query(query, params);
